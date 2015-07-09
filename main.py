@@ -1,15 +1,17 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from sys import argv, exit
 from PySide import QtGui, QtCore
 
 from futils import futils
 
-from ui.mainwindow    import Ui_MainWindow
+from ui.filterdialog  import Ui_FilterDialog
+from ui.formatdialog  import Ui_FormatDialog
 from ui.insertdialog  import Ui_InsertDialog
+from ui.mainwindow    import Ui_MainWindow
 from ui.replacedialog import Ui_ReplaceDialog
 from ui.stripdialog   import Ui_StripDialog
-from ui.formatdialog  import Ui_FormatDialog
-from ui.filterdialog  import Ui_FilterDialog
-
 
 
 def find_replace(old_name, find_string, replace_string):
@@ -76,7 +78,6 @@ def format_numbers(old_name, format_length, format_position):
     return old_name.replace(old_number, new_number, 1)
 
 
-
 class Dialog(QtGui.QDialog):
     def __init__(self, ui_form, old_name, action, parent=None):
         super(Dialog, self).__init__(parent)
@@ -100,7 +101,6 @@ class Dialog(QtGui.QDialog):
         return self.ui.line_1.text(), self.ui.line_2.text()
 
 
-
 class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self,parent)
@@ -121,7 +121,6 @@ class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
         return self.line_string.text(), self.folders_too
 
 
-
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -130,13 +129,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_insert.clicked.connect(self.dialog_insert)
         self.button_replace.clicked.connect(self.dialog_replace)
         self.button_strip.clicked.connect(self.dialog_strip)
-        self.button_format.clicked.connect(self.dia_format)
+        self.button_format.clicked.connect(self.dialog_format)
         self.button_undo.clicked.connect(self.undo_rename)
         self.button_save.clicked.connect(self.save_changes)
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
         self.get_files()
-
 
     def get_files(self, filter_string=None):
         self.files = futils.get_dict('./', filter_str=filter_string)
@@ -144,7 +142,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.list_old.clear()
         for i in self.files:
             self.list_old.addItem(self.files[i]['old'])
-
 
     def select_files(self):
         self.selected_items = self.list_old.selectedItems()
@@ -156,7 +153,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 else:
                     self.files[i]['selected'] = False
 
-
     def refresh_file_list(self):
         self.list_new.clear()
 
@@ -165,7 +161,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 if self.files[i]['new']:
                     self.list_new.addItem(self.files[i]['new'])
 
-
     def apply_filter(self):
         d = FilterDialog()
         d.show()
@@ -173,22 +168,17 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             filter_string, folders_too = d.get_values()
             self.get_files(filter_string)
 
-
     def dialog_insert(self):
         self.create_dialog(insert, Ui_InsertDialog)
-
 
     def dialog_replace(self):
         self.create_dialog(find_replace, Ui_ReplaceDialog)
 
-
     def dialog_strip(self):
         self.create_dialog(strip_chars, Ui_StripDialog)
 
-
-    def dia_format(self):
+    def dialog_format(self):
         self.create_dialog(format_numbers, Ui_FormatDialog)
-
 
     def create_dialog(self, action, ui_form):
         #self.select_files()
@@ -209,7 +199,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                         line_2_string)
             self.refresh_file_list()
 
-
     def undo_rename(self):
         if self.saved_files:
             undo_dict = {}
@@ -220,14 +209,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             futils.rename_files(undo_dict)
             self.get_files()
 
-
     def save_changes(self):
         copy = False
         if self.radioButton_copy.isChecked():
             copy = True
         self.saved_files = futils.rename_files(self.files, copy)
         self.get_files()
-
 
 
 if __name__ == "__main__":
