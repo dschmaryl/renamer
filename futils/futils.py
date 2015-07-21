@@ -1,7 +1,21 @@
 from os import listdir, rename, walk
 from os.path import isfile, join
-from shutil import copy2
-from sys import argv
+from shutil  import copy2
+
+
+def rename_files(files, copy=False):
+    if copy:
+        rename_func = copy2
+    else:
+        rename_func = rename
+    renamed_files = {}
+    for i in files:
+        if files[i]['new'] and files[i]['selected'] == True:
+            old_name = files[i]['old']
+            new_name = files[i]['new']
+            renamed_files[i] = files[i]
+            rename_func(old_name, new_name)
+    return renamed_files
 
 
 def list_files(folder='./', filter_str=None, recursive=False):
@@ -37,45 +51,3 @@ def dict_files(file_list):
 
 def get_dict(folder='./', **kwargs):
     return dict_files(list_files(folder, **kwargs))
-
-
-def rename_files(files, copy=False):
-    if copy:
-        rename_func = copy2
-    else:
-        rename_func = rename
-    renamed_files = {}
-    for i in files:
-        if files[i]['new'] and files[i]['selected'] == True:
-            old_name = files[i]['old']
-            new_name = files[i]['new']
-            renamed_files[i] = files[i]
-            rename_func(old_name, new_name)
-    return renamed_files
-
-
-if __name__ == '__main__':
-    if len(argv) == 1:
-        print '###\ncan get dictionary of names, or rename files with a'
-        print "dictionary as {0:{'old':'oldname', 'new':'newname'}"
-        print '\nadd get_dict, list_files, or rename_files as arg\n###'
-    elif len(argv) >= 2:
-        action = ''
-        if argv[1] == 'dict_files':
-            action = dict_files
-        elif argv[1] == 'list_files':
-            action = list_files
-        elif argv[1] == 'get_dict':
-            action = get_dict
-        else:
-            print 'error with args'
-        if action != '':
-            if len(argv) == 2:
-                print action()
-            elif len(argv) == 3:
-                print action(argv[2])
-            else:
-                print 'error with args'
-        else:
-            print 'error with function name'
-
