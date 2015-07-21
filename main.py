@@ -134,6 +134,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_save.clicked.connect(self.save_changes)
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
+        self.saved_files = {}
         self.get_files()
 
     def get_files(self, filter_string=None):
@@ -207,13 +208,22 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 undo_dict[i]['new'] = self.saved_files[i]['old']
                 undo_dict[i]['old'] = self.saved_files[i]['new']
             futils.rename_files(undo_dict)
+            self.saved_files = {}
+            print 'undid', len(undo_dict), 'files'
             self.get_files()
+        else:
+            print 'nothing to undo'
 
     def save_changes(self):
         copy = False
         if self.radioButton_copy.isChecked():
             copy = True
         self.saved_files = futils.rename_files(self.files, copy)
+        count = len(self.saved_files)
+        if count > 0:
+            print 'saved', count, 'files'
+        else:
+            print 'nothing to save'
         self.get_files()
 
 
