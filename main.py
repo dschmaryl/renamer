@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 from sys import argv, exit
 from PySide import QtGui, QtCore
 
@@ -113,7 +115,7 @@ class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
     def radio_button(self):
         if self.radioButton_folders.isChecked():
             self.folders_too = True
-            print 'set to true'
+            print('set to true')
         else:
             self.folders_too = False
 
@@ -209,10 +211,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 undo_dict[i]['old'] = self.saved_files[i]['new']
             futils.rename_files(undo_dict)
             self.saved_files = {}
-            print 'undid', len(undo_dict), 'files'
+            print('undid', len(undo_dict), 'files')
             self.get_files()
         else:
-            print 'nothing to undo'
+            print('nothing to undo')
 
     def save_changes(self):
         copy = False
@@ -221,9 +223,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.saved_files = futils.rename_files(self.files, copy)
         count = len(self.saved_files)
         if count > 0:
-            print 'saved', count, 'files'
+            print('saved', count, 'files')
         else:
-            print 'nothing to save'
+            print('nothing to save')
         self.get_files()
 
 
