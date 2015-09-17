@@ -8,12 +8,12 @@ from PySide import QtGui, QtCore
 
 from futils import futils
 
-from ui.filterdialog  import Ui_FilterDialog
-from ui.formatdialog  import Ui_FormatDialog
-from ui.insertdialog  import Ui_InsertDialog
-from ui.mainwindow    import Ui_MainWindow
+from ui.filterdialog import Ui_FilterDialog
+from ui.formatdialog import Ui_FormatDialog
+from ui.insertdialog import Ui_InsertDialog
+from ui.mainwindow import Ui_MainWindow
 from ui.replacedialog import Ui_ReplaceDialog
-from ui.stripdialog   import Ui_StripDialog
+from ui.stripdialog import Ui_StripDialog
 
 
 def find_replace(old_name, find_string, replace_string):
@@ -105,7 +105,7 @@ class Dialog(QtGui.QDialog):
 
 class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self,parent)
+        QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.button_cancel.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.accept)
@@ -184,7 +184,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.create_dialog(format_numbers, Ui_FormatDialog)
 
     def create_dialog(self, action, ui_form):
-        #self.select_files()
         for i in self.files:
             if self.files[i]['selected'] == True:
                 preview_file = self.files[i]['old']
