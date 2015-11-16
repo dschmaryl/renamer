@@ -1,13 +1,12 @@
-from os import listdir, rename, walk
-from os.path import isfile, join
-from shutil  import copy2
+import os
+import shutil
 
 
 def rename_files(files, copy=False):
     if copy:
-        rename_func = copy2
+        rename_func = shutil.copy2
     else:
-        rename_func = rename
+        rename_func = os.rename
     renamed_files = {}
     for i in files:
         if files[i]['new'] and files[i]['selected'] == True:
@@ -21,7 +20,7 @@ def rename_files(files, copy=False):
 def list_files(folder='./', filter_str=None, recursive=False):
     files = []
     if recursive:
-        for (p, d, fs) in walk(folder):
+        for (p, d, fs) in os.walk(folder):
             if p == './':
                 for f in fs:
                     if not filter_str or filter_str in f:
@@ -31,8 +30,8 @@ def list_files(folder='./', filter_str=None, recursive=False):
                     if not filter_str or filter_str in f:
                         files.append(p+'/'+f)
     else:
-        for f in listdir(folder):
-            if isfile(join(folder,f)):
+        for f in os.listdir(folder):
+            if os.path.isfile(os.path.join(folder,f)):
                 if not filter_str or filter_str in f:
                     files.append(f)
     return files
