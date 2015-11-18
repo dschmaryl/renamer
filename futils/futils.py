@@ -31,7 +31,7 @@ def list_files(folder='./', filter_str=None, recursive=False):
                         files.append(p+'/'+f)
     else:
         for f in os.listdir(folder):
-            if os.path.isfile(os.path.join(folder,f)):
+            if os.path.isfile(os.path.join(folder, f)):
                 if not filter_str or filter_str in f:
                     files.append(f)
     return files
