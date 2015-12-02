@@ -110,6 +110,7 @@ class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
         self.button_cancel.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.accept)
         self.radioButton_folders.toggled.connect(self.radio_button)
+
     folders_too = False
 
     def radio_button(self):
@@ -136,11 +137,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_save.clicked.connect(self.save_changes)
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
+
+        self.filter_string = None
         self.saved_files = {}
         self.get_files()
 
-    def get_files(self, filter_string=None):
-        self.files = futils.get_dict('./', filter_str=filter_string)
+    def get_files(self):
+        self.files = futils.get_dict('./', filter_str=self.filter_string)
         self.list_new.clear()
         self.list_old.clear()
         for i in self.files:
@@ -168,8 +171,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         d = FilterDialog()
         d.show()
         if d.exec_():
-            filter_string, folders_too = d.get_values()
-            self.get_files(filter_string)
+            self.filter_string, folders_too = d.get_values()
+            self.get_files()
 
     def dialog_insert(self):
         self.create_dialog(insert, Ui_InsertDialog)
