@@ -1,3 +1,4 @@
+import glob
 import os
 import shutil
 
@@ -18,6 +19,7 @@ def rename_files(files, copy=False):
 
 
 def list_files(folder='./', filter_str=None, recursive=False):
+    # recursive not implemented yet
     files = []
     if recursive:
         for (p, d, fs) in os.walk(folder):
@@ -30,10 +32,14 @@ def list_files(folder='./', filter_str=None, recursive=False):
                     if not filter_str or filter_str in f:
                         files.append(p+'/'+f)
     else:
-        for f in os.listdir(folder):
-            if os.path.isfile(os.path.join(folder, f)):
-                if not filter_str or filter_str in f:
-                    files.append(f)
+        if filter_str and '*' in filter_str:
+            files.extend(glob.glob(filter_str))
+        else:
+            for f in os.listdir(folder):
+                if os.path.isfile(os.path.join(folder, f)):
+                    if not filter_str or filter_str in f:
+                        files.append(f)
+    files.sort()
     return files
 
 
