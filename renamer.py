@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sys import argv, exit
+import glob
+import os
+import sys
+import shutil
+
 from PySide import QtGui, QtCore
 
 from ui.filterdialog import Ui_FilterDialog
@@ -11,7 +15,52 @@ from ui.mainwindow import Ui_MainWindow
 from ui.replacedialog import Ui_ReplaceDialog
 from ui.stripdialog import Ui_StripDialog
 
-import futils
+
+def rename_files(files, copy=False):
+    if copy:
+        rename_func = shutil.copy2
+    else:
+        rename_func = os.rename
+    renamed_files = {}
+    for i in files:
+        if files[i]['new'] and files[i]['selected'] == True:
+            old_name = files[i]['old']
+            new_name = files[i]['new']
+            renamed_files[i] = files[i]
+            rename_func(old_name, new_name)
+    return renamed_files
+
+
+def files_dict(folder='./', filter_str=None, recursive=False):
+    file_list = []
+    if recursive:
+        # not really implemented yet
+        for (p, d, fs) in os.walk(folder):
+            if p == './':
+                for f in fs:
+                    if not filter_str or filter_str in f:
+                        file_list.append(p+f)
+            else:
+                for f in fs:
+                    if not filter_str or filter_str in f:
+                        file_list.append(p+'/'+f)
+    else:
+        if filter_str and '*' in filter_str:
+            file_list.extend(glob.glob(filter_str))
+        else:
+            for f in os.listdir(folder):
+                if os.path.isfile(os.path.join(folder, f)):
+                    if not filter_str or filter_str in f:
+                        file_list.append(f)
+    file_list.sort()
+    file_dict = {}
+    for f in file_list:
+        file_dict[file_list.index(f)] = {
+            'old': f,
+            'new': '',
+            'selected': True
+        }
+    return file_dict
 
 
 def find_replace(old_name, find_string, replace_string):
@@ -141,7 +190,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.get_files()
 
     def get_files(self):
-        self.files = futils.get_dict('./', filter_str=self.filter_string)
+        self.files = files_dict(filter_str=self.filter_string)
         self.list_new.clear()
         self.list_old.clear()
         for i in self.files:
@@ -209,7 +258,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 undo_dict[i] = self.saved_files[i].copy()
                 undo_dict[i]['new'] = self.saved_files[i]['old']
                 undo_dict[i]['old'] = self.saved_files[i]['new']
-            futils.rename_files(undo_dict)
+            rename_files(undo_dict)
             self.saved_files = {}
             print('undid', len(undo_dict), 'files')
             self.get_files()
@@ -220,7 +269,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         copy = False
         if self.radioButton_copy.isChecked():
             copy = True
-        self.saved_files = futils.rename_files(self.files, copy)
+        self.saved_files = rename_files(self.files, copy)
         count = len(self.saved_files)
         if count > 0:
             print('saved', count, 'files')
@@ -230,8 +279,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
-
-    app = QtGui.QApplication(argv)
+    app = QtGui.QApplication(sys.argv)
     mySW = MainWindow()
     mySW.show()
-    exit(app.exec_())
+    sys.exit(app.exec_())
