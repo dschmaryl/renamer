@@ -4,14 +4,14 @@
 from sys import argv, exit
 from PySide import QtGui, QtCore
 
-from futils import futils
-
 from ui.filterdialog import Ui_FilterDialog
 from ui.formatdialog import Ui_FormatDialog
 from ui.insertdialog import Ui_InsertDialog
 from ui.mainwindow import Ui_MainWindow
 from ui.replacedialog import Ui_ReplaceDialog
 from ui.stripdialog import Ui_StripDialog
+
+import futils
 
 
 def find_replace(old_name, find_string, replace_string):
