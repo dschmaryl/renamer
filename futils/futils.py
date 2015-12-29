@@ -18,8 +18,7 @@ def rename_files(files, copy=False):
     return renamed_files
 
 
-def list_files(folder='./', filter_str=None, recursive=False):
-    # recursive not implemented yet
+def files_list(folder='./', filter_str=None, recursive=False):
     files = []
     if recursive:
         for (p, d, fs) in os.walk(folder):
@@ -39,11 +38,11 @@ def list_files(folder='./', filter_str=None, recursive=False):
                 if os.path.isfile(os.path.join(folder, f)):
                     if not filter_str or filter_str in f:
                         files.append(f)
-    files.sort()
-    return files
+
+    return sorted(files)
 
 
-def dict_files(file_list):
+def files_dict(file_list):
     file_dict = {}
     for f in file_list:
         file_dict[file_list.index(f)] = {
@@ -55,4 +54,4 @@ def dict_files(file_list):
 
 
 def get_dict(folder='./', **kwargs):
-    return dict_files(list_files(folder, **kwargs))
+    return files_dict(files_list(folder, **kwargs))
