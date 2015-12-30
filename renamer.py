@@ -3,6 +3,7 @@
 
 import glob
 import os
+import pathlib
 import sys
 import shutil
 
@@ -31,27 +32,15 @@ def rename_files(files, copy=False):
     return renamed_files
 
 
-def files_dict(folder='./', filter_str=None, recursive=False):
+def files_dict(filter_str=None):
     file_list = []
-    if recursive:
-        # not really implemented yet
-        for (p, d, fs) in os.walk(folder):
-            if p == './':
-                for f in fs:
-                    if not filter_str or filter_str in f:
-                        file_list.append(p+f)
-            else:
-                for f in fs:
-                    if not filter_str or filter_str in f:
-                        file_list.append(p+'/'+f)
+    if filter_str and '*' in filter_str:
+        file_list.extend(glob.glob(filter_str))
     else:
-        if filter_str and '*' in filter_str:
-            file_list.extend(glob.glob(filter_str))
-        else:
-            for f in os.listdir(folder):
-                if os.path.isfile(os.path.join(folder, f)):
-                    if not filter_str or filter_str in f:
-                        file_list.append(f)
+        for f in os.listdir('.'):
+            if os.path.isfile(f):
+                if not filter_str or filter_str in f:
+                    file_list.append(f)
     file_list.sort()
     file_dict = {}
     for f in file_list:
@@ -106,7 +95,6 @@ def format_numbers(old_name, format_length, format_position):
         except ValueError:
             return None
     format_string = '%0' + str(length_int) + 'd'
-
     if not format_position:
         position_int = 0
     else:
@@ -156,19 +144,9 @@ class FilterDialog(QtGui.QDialog, Ui_FilterDialog):
         self.setupUi(self)
         self.button_cancel.clicked.connect(self.close)
         self.button_apply.clicked.connect(self.accept)
-        self.radioButton_folders.toggled.connect(self.radio_button)
-
-    folders_too = False
-
-    def radio_button(self):
-        if self.radioButton_folders.isChecked():
-            self.folders_too = True
-            print('set to true')
-        else:
-            self.folders_too = False
 
     def get_values(self):
-        return self.line_string.text(), self.folders_too
+        return self.line_string.text()
 
 
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
@@ -184,6 +162,14 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_save.clicked.connect(self.save_changes)
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
+
+        if len(sys.argv) == 2:
+            self.folder = pathlib.Path(sys.argv[1]).resolve()
+            if not self.folder.is_dir():
+                self.folder = self.folder.parent
+        else:
+            self.folder = pathlib.Path('.').resolve()
+        os.chdir(str(self.folder))
 
         self.filter_string = None
         self.saved_files = {}
@@ -208,7 +194,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def refresh_file_list(self):
         self.list_new.clear()
-
         for i in self.files:
             if self.files[i]['selected'] == True:
                 if self.files[i]['new']:
@@ -218,7 +203,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         d = FilterDialog()
         d.show()
         if d.exec_():
-            self.filter_string, folders_too = d.get_values()
+            self.filter_string = d.get_values()
             self.get_files()
 
     def dialog_insert(self):
@@ -240,7 +225,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 break
         d = Dialog(ui_form, preview_file, action)
         d.show()
-
         if d.exec_():
             line_1_string, line_2_string = d.get_values()
             for i in self.files:
