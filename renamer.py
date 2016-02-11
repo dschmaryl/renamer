@@ -55,7 +55,7 @@ def files_dict(filter_str=None):
 def find_replace(old_name, find_string, replace_string):
     if find_string not in old_name:
         return None
-    return old_name.replace(find_string, replace_string)
+    return old_name.replace(find_string, replace_string, 1)
 
 
 def insert(old_name, insert_position, insert_string):
