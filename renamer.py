@@ -7,7 +7,7 @@ import pathlib
 import sys
 import shutil
 
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 from ui.filterdialog import Ui_FilterDialog
 from ui.formatdialog import Ui_FormatDialog
@@ -17,22 +17,22 @@ from ui.replacedialog import Ui_ReplaceDialog
 from ui.stripdialog import Ui_StripDialog
 
 
-def rename_files(files, copy=False):
+def rename_files(files_dict, copy=False):
     if copy:
         rename_func = shutil.copy2
     else:
         rename_func = os.rename
     renamed_files = {}
-    for i in files:
-        if files[i]['new'] and files[i]['selected'] == True:
-            old_name = files[i]['old']
-            new_name = files[i]['new']
-            renamed_files[i] = files[i]
+    for key, value in files_dict.items():
+        if value['new'] and value['selected']:
+            old_name = value['old']
+            new_name = value['new']
+            renamed_files[key] = value
             rename_func(old_name, new_name)
     return renamed_files
 
 
-def files_dict(filter_str=None):
+def get_files_dict(filter_str=None):
     file_list = []
     if filter_str and '*' in filter_str:
         file_list.extend(glob.glob(filter_str))
@@ -88,26 +88,24 @@ def strip_chars(old_name, strip_position, strip_length):
 
 def format_numbers(old_name, format_length, format_position):
     if not format_length:
-        length_int = 2
+        format_length = 2
     else:
         try:
-            length_int = min(max(2, int(format_length)), 6)
+            format_length = min(max(2, int(format_length)), 6)
         except ValueError:
             return None
-    format_string = '%0' + str(length_int) + 'd'
     if not format_position:
-        position_int = 0
+        format_position = 0
     else:
         try:
-            position_int = max(0, int(format_position) - 1)
+            format_position = max(0, int(format_position) - 1)
         except ValueError:
             return None
-    piece1 = old_name[:position_int]
-    piece2 = old_name[position_int:]
+    format_string = '%0' + str(format_length) + 'd'
     old_number = ''
-    for i in range(length_int):
-        if piece2[i].isdigit():
-            old_number += piece2[i]
+    for i in range(format_length):
+        if old_name[format_position:][i].isdigit():
+            old_number += old_name[format_position:][i]
     try:
         new_number = format_string % int(old_number)
     except ValueError:
@@ -176,7 +174,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.get_files()
 
     def get_files(self):
-        self.files = files_dict(filter_str=self.filter_string)
+        self.files = get_files_dict(filter_str=self.filter_string)
         self.list_new.clear()
         self.list_old.clear()
         for i in self.files:
@@ -194,10 +192,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def refresh_file_list(self):
         self.list_new.clear()
-        for i in self.files:
-            if self.files[i]['selected'] == True:
-                if self.files[i]['new']:
-                    self.list_new.addItem(self.files[i]['new'])
+        for key, value in self.files.items():
+            if value['selected']:
+                if value['new']:
+                    self.list_new.addItem(value['new'])
 
     def apply_filter(self):
         d = FilterDialog()
@@ -219,18 +217,18 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.create_dialog(format_numbers, Ui_FormatDialog)
 
     def create_dialog(self, action, ui_form):
-        for i in self.files:
-            if self.files[i]['selected'] == True:
-                preview_file = self.files[i]['old']
+        for key, value in self.files.items():
+            if value['selected']:
+                preview_file = value['old']
                 break
         d = Dialog(ui_form, preview_file, action)
         d.show()
         if d.exec_():
             line_1_string, line_2_string = d.get_values()
-            for i in self.files:
-                if self.files[i]['selected'] == True:
-                    self.files[i]['new'] = action(
-                        self.files[i]['old'],
+            for key, value in self.files.items():
+                if value['selected']:
+                    self.files[key]['new'] = action(
+                        value['old'],
                         line_1_string,
                         line_2_string)
             self.refresh_file_list()
@@ -238,10 +236,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def undo_rename(self):
         if self.saved_files:
             undo_dict = {}
-            for i in self.saved_files:
-                undo_dict[i] = self.saved_files[i].copy()
-                undo_dict[i]['new'] = self.saved_files[i]['old']
-                undo_dict[i]['old'] = self.saved_files[i]['new']
+            for key, value in self.saved_files.items():
+                undo_dict[key] = value.copy()
+                undo_dict[key]['new'] = value['old']
+                undo_dict[key]['old'] = value['new']
             rename_files(undo_dict)
             self.saved_files = {}
             print('undid', len(undo_dict), 'files')
