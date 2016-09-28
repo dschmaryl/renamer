@@ -18,17 +18,14 @@ from ui.stripdialog import Ui_StripDialog
 
 
 def rename_files(files_dict, copy=False):
-    if copy:
-        rename_method = shutil.copy2
-    else:
-        rename_method = os.rename
+    rename = shutil.copy2 if copy else os.rename
     renamed_files = {}
     for key, filename in files_dict.items():
         if filename['new'] and filename['selected']:
             old_name = filename['old']
             new_name = filename['new']
             renamed_files[key] = filename
-            rename_method(old_name, new_name)
+            rename(old_name, new_name)
     return renamed_files
 
 
@@ -248,9 +245,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             print('nothing to undo')
 
     def save_changes(self):
-        copy = False
-        if self.radioButton_copy.isChecked():
-            copy = True
+        copy = True if self.radioButton_copy.isChecked() else False
         self.saved_files = rename_files(self.files, copy)
         count = len(self.saved_files)
         if count > 0:
