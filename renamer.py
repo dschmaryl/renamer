@@ -168,11 +168,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.selected_items = self.list_old.selectedItems()
         selected_files = [i.text() for i in self.selected_items]
         if len(selected_files) != 0:
-            for i in self.files:
-                if self.files[i]['old'] in selected_files:
-                    self.files[i]['selected'] = True
+            for key in self.files:
+                if self.files[key]['old'] in selected_files:
+                    self.files[key]['selected'] = True
                 else:
-                    self.files[i]['selected'] = False
+                    self.files[key]['selected'] = False
 
     def refresh_file_list(self):
         self.list_new.clear()
