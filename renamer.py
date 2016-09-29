@@ -21,7 +21,7 @@ def rename_files(files_dict, copy=False):
     rename = shutil.copy2 if copy else os.rename
     renamed_files = {}
     for key, filename in files_dict.items():
-        if filename['new'] and filename['selected']:
+        if filename['selected']:
             old_name = filename['old']
             new_name = filename['new']
             renamed_files[key] = filename
@@ -29,24 +29,11 @@ def rename_files(files_dict, copy=False):
     return renamed_files
 
 
-def get_files_dict(filter_str=None):
-    file_list = []
-    if filter_str and '*' in filter_str:
-        file_list.extend(glob.glob(filter_str))
-    else:
-        for f in os.listdir('.'):
-            if os.path.isfile(f):
-                if not filter_str or filter_str in f:
-                    file_list.append(f)
-    file_list.sort()
-    file_dict = {}
-    for f in file_list:
-        file_dict[file_list.index(f)] = {
-            'old': f,
-            'new': '',
-            'selected': True
-        }
-    return file_dict
+def get_files_dict(filter_str='*'):
+    if '*' not in filter_str:
+        filter_str = '*' + filter_str + '*'
+    files = sorted(glob.glob(filter_str))
+    return {files.index(f): {'old': f, 'selected': True} for f in files}
 
 
 def find_replace(old_name, find_string, replace_string):
@@ -80,7 +67,7 @@ def strip_chars(old_name, strip_position, strip_length):
             position_int = max(0, int(strip_position) - 1)
         except ValueError:
             return None
-    return old_name[:position_int] + old_name[position_int + strip_int:]
+    return old_name[:position_int] + old_name[position_int+strip_int:]
 
 
 def format_numbers(old_name, format_length, format_position):
@@ -166,7 +153,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.folder = pathlib.Path('.').resolve()
         os.chdir(str(self.folder))
 
-        self.filter_string = None
+        self.filter_string = '*'
         self.saved_files = {}
         self.get_files()
 
@@ -191,8 +178,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.list_new.clear()
         for key, filename in self.files.items():
             if filename['selected']:
-                if filename['new']:
-                    self.list_new.addItem(filename['new'])
+                self.list_new.addItem(filename['new'])
 
     def apply_filter(self):
         d = FilterDialog()
@@ -227,7 +213,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     self.files[key]['new'] = action(
                         filename['old'],
                         line_1_string,
-                        line_2_string)
+                        line_2_string
+                    )
             self.refresh_file_list()
 
     def undo_rename(self):
