@@ -21,7 +21,7 @@ def rename_files(files_dict, copy=False):
     rename = shutil.copy2 if copy else os.rename
     renamed_files = {}
     for key, filename in files_dict.items():
-        if filename['selected']:
+        if filename['selected'] and filename['new']:
             old_name = filename['old']
             new_name = filename['new']
             renamed_files[key] = filename
