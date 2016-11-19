@@ -45,13 +45,13 @@ def find_replace(old_name, find_string, replace_string):
 def insert(old_name, insert_position, insert_string):
     if not insert_string:
         return None
-    if not insert_position:
-        position_int = 0
-    else:
+    if insert_position:
         try:
             position_int = max(0, int(insert_position) - 1)
         except ValueError:
             return None
+    else:
+        position_int = 0
     return old_name[:position_int] + insert_string + old_name[position_int:]
 
 
@@ -60,31 +60,31 @@ def strip_chars(old_name, strip_position, strip_length):
         strip_int = max(0, int(strip_length))
     except ValueError:
         return None
-    if not strip_position:
-        position_int = 0
-    else:
+    if strip_position:
         try:
             position_int = max(0, int(strip_position) - 1)
         except ValueError:
             return None
+    else:
+        position_int = 0
     return old_name[:position_int] + old_name[position_int+strip_int:]
 
 
 def format_numbers(old_name, format_length, format_position):
-    if not format_length:
-        format_length = 2
-    else:
+    if format_length:
         try:
             format_length = min(max(2, int(format_length)), 6)
         except ValueError:
             return None
-    if not format_position:
-        format_position = 0
     else:
+        format_length = 2
+    if format_position:
         try:
             format_position = max(0, int(format_position) - 1)
         except ValueError:
             return None
+    else:
+        format_position = 0
     format_string = '%0' + str(format_length) + 'd'
     old_number = ''
     for i in range(format_length):
@@ -145,6 +145,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
 
+        # check to see if a filename or directory was passed as an argument.
+        # if so, change to the directory
         if len(sys.argv) == 2:
             self.folder = pathlib.Path(sys.argv[1]).resolve()
             if not self.folder.is_dir():
@@ -165,6 +167,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.list_old.addItem(self.files[i]['old'])
 
     def select_files(self):
+        # select files from the file list by highlighting with the mouse
         self.selected_items = self.list_old.selectedItems()
         selected_files = [i.text() for i in self.selected_items]
         if len(selected_files) != 0:
