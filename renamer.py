@@ -235,7 +235,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             print('nothing to undo')
 
     def save_changes(self):
-        copy = True if self.radioButton_copy.isChecked() else False
+        copy = self.radioButton_copy.isChecked()
         self.saved_files = rename_files(self.files, copy)
         count = len(self.saved_files)
         if count > 0:
