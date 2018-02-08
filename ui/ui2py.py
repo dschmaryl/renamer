@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import glob
 import subprocess
+
 
 for ui_file in glob.glob('*.ui'):
     py_file = ui_file.replace('.ui', '.py')
