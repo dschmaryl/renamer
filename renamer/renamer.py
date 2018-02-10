@@ -163,9 +163,7 @@ if __name__ == "__main__":
         folder = pathlib.Path(sys.argv[1]).resolve()
         if not folder.is_dir():
             folder = folder.parent
-    else:
-        folder = pathlib.Path('.').resolve()
-    os.chdir(str(folder))
+        os.chdir(str(folder))
 
     app = QtGui.QApplication(sys.argv)
     mySW = MainWindow()
