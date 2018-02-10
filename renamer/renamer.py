@@ -66,16 +66,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.button_exit.clicked.connect(self.close)
         self.list_old.itemSelectionChanged.connect(self.select_files)
 
-        # check to see if a filename or directory was passed as an argument.
-        # if so, change to the directory
-        if len(sys.argv) == 2:
-            self.folder = pathlib.Path(sys.argv[1]).resolve()
-            if not self.folder.is_dir():
-                self.folder = self.folder.parent
-        else:
-            self.folder = pathlib.Path('.').resolve()
-        os.chdir(str(self.folder))
-
         self.filter_string = '*'
         self.saved_files = {}
         self.get_files()
@@ -167,6 +157,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
+    # check to see if a directory or file was passed as an argument;
+    # if so, change to the directory or the directory containing the file.
+    if len(sys.argv) == 2:
+        folder = pathlib.Path(sys.argv[1]).resolve()
+        if not folder.is_dir():
+            folder = folder.parent
+    else:
+        folder = pathlib.Path('.').resolve()
+    os.chdir(str(folder))
+
     app = QtGui.QApplication(sys.argv)
     mySW = MainWindow()
     mySW.show()
