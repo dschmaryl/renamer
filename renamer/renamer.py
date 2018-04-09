@@ -90,7 +90,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
     def refresh_file_list(self):
         self.list_new.clear()
-        for key, filename in self.files.items():
+        for filename in self.files.values():
             if filename['selected']:
                 self.list_new.addItem(filename['new'])
 
