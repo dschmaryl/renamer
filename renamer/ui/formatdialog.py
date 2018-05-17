@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'formatdialog.ui'
 #
-# Created: Tue Dec 29 23:36:05 2015
+# Created: Thu May 17 17:39:31 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!

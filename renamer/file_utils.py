@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import glob
 import os
@@ -19,9 +18,9 @@ def get_files_dict(filter_str='*'):
     return {files.index(f): {'old': f, 'selected': True} for f in files}
 
 
-def rename_files(files_dict, copy=False):
-    # 'files_dict' should be a dictionary like the following:
-    # files_dict = {
+def rename_files(files, copy=False):
+    # 'files' should be a dictionary like the following:
+    # files = {
     #     file_one: {
     #         'old': 'old_name',
     #         'new': 'new_name',
@@ -36,7 +35,7 @@ def rename_files(files_dict, copy=False):
     rename = shutil.copy2 if copy else os.rename
     renamed_files = {}
 
-    for key, filename in files_dict.items():
+    for key, filename in files.items():
         if filename['selected'] and filename['new']:
             old_name = filename['old']
             new_name = filename['new']
